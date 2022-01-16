@@ -65,17 +65,19 @@ body {
 }
 
 .display {
+  display: flex;
   background: #3d3d3d;
-  height: 60px;
+  height: 80px;
   width: 280px;
   border-radius: 10px;
+  align-items: flex-end;
+  justify-content: flex-end;
 }
 
 .display-text {
   margin: 10px;
   color: #988ac9;
   font-size: 1.5em;
-  float: right;
 }
 
 .buttons-container {
