@@ -1,12 +1,17 @@
-const buttons = Array.from(document.querySelectorAll(".number , .operator"));
+const buttons = Array.from(document.querySelectorAll(".number"));
 const clearButton = document.querySelector(".clear");
 const clearLastButton = document.querySelector(".clearLast");
 const equalButton = document.querySelector("#equal");
+const pointButton = document.querySelector(".decimal");
+const operatorNameElement = Array.from(document.querySelectorAll(".operator"));
+
 let displayText = document.querySelector(".display-text");
-let operatorNameElement = document.querySelectorAll(".operator");
 var num1 = 0;
 var num2 = 0;
 var funcName;
+var answer;
+var displayArray = [];
+var operatorClicked = false;
 // ---------------------------CALCULATOR---------------------------------
 
 const add = (a, b) => {
@@ -36,35 +41,53 @@ const operate = (func, a, b) => {
 // -------------------EVENT LISTENER FUNCTION----------------------------
 
 const handleButtonClick = (e) => {
+  if (displayText.textContent === "0") {
+    displayText.textContent = "";
+  }
   displayText.textContent += e.target.textContent;
+  displayArray.push(e.target.textContent);
 };
 
 const handleClear = () => {
-  displayText.textContent = "";
+  displayText.textContent = "0";
+  displayArray = [];
+  disableOperatorButtons(false)
 };
 
 const handleclearLastButton = () => {
   let str = displayText.textContent;
   str = str.slice(0, -1);
   displayText.textContent = str;
+  displayArray.pop();
+
+  if (!(displayArray.includes(getOperatorSign()))){
+    disableOperatorButtons(false)
+  }
+  console.log(displayArray);
 };
 
 const getOperatorName = (e) => {
-  console.log(e.target.value);
+  displayText.textContent += e.target.textContent 
+  operatorClicked = true;
+  disableOperatorButtons(true)
   funcName = e.target.value;
 };
 
-const handleEqual = () => { 
+const handleEqual = () => {
   let content = getOperatorSign();
   num1 = Number(content[0]);
   num2 = Number(content[1]);
+
   let func = new Function("return " + funcName)();
-  let answer = operate(func, num1, num2);
+  answer = operate(func, num1, num2);
   if (!(answer % 1 === 0)) {
-    // to make decimal point to 2 points only
     answer = answer.toFixed(2);
   }
+
   displayText.textContent = answer;
+  let answerArray = answer.toString().split("");
+  displayArray = answerArray;
+  disableOperatorButtons(false)
 };
 
 const getOperatorSign = () => {
@@ -86,6 +109,25 @@ const getOperatorSign = () => {
   }
 };
 
+const handlePointButton = () => {
+  if (!displayArray.includes(".")) {
+    console.log(displayArray);
+    displayText.textContent += ".";
+    displayArray.push(".");
+  } else if (displayArray.includes(".") && operatorClicked) {
+    displayText.textContent += ".";
+    operatorClicked = false;
+  }
+};
+
+//--------------------------------NORMAL FUNCTIONS--------------------------------
+
+const disableOperatorButtons = (toggleDisable) => {
+  operatorNameElement.forEach((element) => {
+    element.disabled = toggleDisable;
+  });
+};
+
 // --------------------------ADD EVENT LISTENERS--------------------------------
 
 buttons.forEach((button) => {
@@ -99,3 +141,5 @@ equalButton.addEventListener("click", handleEqual);
 const operator = operatorNameElement.forEach((operator) => {
   operator.addEventListener("click", getOperatorName);
 });
+
+pointButton.addEventListener("click", handlePointButton);
