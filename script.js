@@ -1,4 +1,4 @@
-const buttons = Array.from(document.querySelectorAll(".number"));
+const numbers = Array.from(document.querySelectorAll(".number"));
 const clearButton = document.querySelector(".clear");
 const clearLastButton = document.querySelector(".clearLast");
 const equalButton = document.querySelector("#equal");
@@ -41,28 +41,27 @@ const operate = (func, a, b) => {
 
 // -------------------EVENT LISTENER FUNCTION----------------------------
 
-const handleButtonClick = (e) => {
+const handleNumberClick = (e) => {
   if (displayText.textContent === "0") {
     displayText.textContent = "";
   }
-  displayText.textContent += e.target.textContent;
-  displayArray.push(e.target.textContent);
+  updateDisplayArray(displayArray, e.target.textContent, "push");
 };
 
 const handleClear = () => {
   displayText.textContent = "0";
   displayArray = [];
-  disableOperatorButtons(false);
+  disableOperators(operatorNameElement, false);
+  disableOperators(numbers, false);
 };
 
 const handleclearLastButton = () => {
   let str = displayText.textContent;
   str = str.slice(0, -1);
-  displayText.textContent = str;
-  displayArray.pop();
+  updateDisplayArray(displayArray, str, "pop");
 
   if (!displayArray.includes(getOperatorSign())) {
-    disableOperatorButtons(false);
+    disableOperators(operatorNameElement, false);
     operatorClicked = false;
   }
 };
@@ -71,7 +70,7 @@ const handleclearLastButton = () => {
 const getOperatorName = (e) => {
   displayText.textContent += e.target.textContent;
   operatorClicked = true;
-  disableOperatorButtons(true);
+  disableOperators(operatorNameElement, true);
   funcName = e.target.value;
 };
 
@@ -91,7 +90,7 @@ const handleEqual = () => {
   let answerArray = answer.toString().split("");
   displayArray = answerArray;
 
-  disableOperatorButtons(false);
+  disableOperators(operatorNameElement, false);
   operatorClicked = false;
 };
 
@@ -115,28 +114,46 @@ const getOperatorSign = () => {
   }
 };
 
-const handlePointButton = (e) => {
-  if (!displayArray.includes(".")) {
-    displayText.textContent += ".";
-    displayArray.push(".");
-  } else if (displayArray.includes(".") && operatorClicked) {
-    displayText.textContent += ".";
+const handlePointButton = () => {
+  if (
+    !displayArray.includes(".") ||
+    (displayArray.includes(".") && operatorClicked)
+  ) {
+    updateDisplayArray(displayArray, ".", "push");
     operatorClicked = false;
   }
 };
 
 //--------------------------------NORMAL FUNCTIONS--------------------------------
 
-const disableOperatorButtons = (toggleDisable) => {
-  operatorNameElement.forEach((element) => {
+// updates main array and display of calculator
+const updateDisplayArray = (arr, el, method) => {
+  if (method == "pop") {
+    arr.pop();
+    displayText.textContent = el;
+  } else if (method == "push") {
+    arr.push(el);
+    displayText.textContent += arr[arr.length - 1];
+  }
+  console.log(arr.length);
+  if (arr.length > 10) {
+    disableOperators(numbers, true);
+  }
+  if (arr.length < 10) {
+    disableOperators(numbers, false);
+  }
+};
+
+const disableOperators = (el, toggleDisable) => {
+  el.forEach((element) => {
     element.disabled = toggleDisable;
   });
 };
 
 // --------------------------ADD EVENT LISTENERS--------------------------------
 
-buttons.forEach((button) => {
-  button.addEventListener("click", handleButtonClick);
+numbers.forEach((button) => {
+  button.addEventListener("click", handleNumberClick);
 });
 
 clearButton.addEventListener("click", handleClear);
